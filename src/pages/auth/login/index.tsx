@@ -1,13 +1,14 @@
 import { t } from "@/helpers";
 import { useAppDispatch } from "@/store";
 import SignIn from "@/store/auth/service";
-import type { FieldType } from "@/types";
 import { Button, Col, Form, Input, Row, Spin, type FormProps } from "antd";
 import Lottie from "lottie-react";
 import { useEffect, useState } from "react";
 import settingsAnimation from "@/assets/lotti/settings.json";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { createLoginFormData } from "@/api/auth_api";
+import type { FieldType } from "@/types";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -24,20 +25,22 @@ export default function Login() {
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     try {
       setLoading(true);
+
+      const { formData } = createLoginFormData(
+        values?.username,
+        values?.password
+      );
+
       const credentials = {
         username: values?.username,
         password: values?.password,
       };
 
-      const result = await dispatch(
-        SignIn({ data: credentials, type: "login" })
-      );
-
-      console.log("Login result:", result);
-
-      // 🔹 Agar login muvaffaqiyatli bo‘lsa
-      if ((result as any)?.payload?.data?.access) {
-        window.location.href = "/"; // Bosh sahifaga o‘tkazish
+      const result = await dispatch(SignIn({ data: formData, type: "login" }));
+      
+      // 🔹 Agar login muvaffaqiyatli bo'lsa
+      if ((result as any)?.payload?.access_token) {
+        window.location.href = "/"; // Bosh sahifaga o'tkazish
       }
     } catch (error) {
       console.error("LoginError:", error);
@@ -63,7 +66,7 @@ export default function Login() {
               data-aos-delay="100"
               data-aos-duration="800">
               <h3 className="rn-title text-center text-transparent bg-clip-text font-bold bg-gradient-to-r leading-snug tracking-wide drop-shadow-md">
-                O'zbekiston Respublikasi Ichki ishlar vazirligi
+                O'zbekiston Respublikasi Ichki ishlar vazirligi{" "}
                 <br className="block sm:hidden" />
                 Jamoat xavfsizligi departamenti
                 <br className="hidden sm:block" />
@@ -85,7 +88,10 @@ export default function Login() {
               </p>
             </div>
             <Form onFinish={onFinish} layout="vertical" className="mt-8">
-              <Spin spinning={loading}>
+              <Spin
+                spinning={loading}
+                size="large"
+                tip={<span>Sabir qiling...</span>}>
                 <div data-aos="fade-up" data-aos-delay="300">
                   <Form.Item<FieldType>
                     label={<span className="font-medium">Login</span>}

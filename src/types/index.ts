@@ -20,7 +20,9 @@ export interface HeaderSidebarContentProps {
   noLayout?: string;
 }
 
-export interface MainContextTypes {}
+export interface MainContextTypes {
+  roles: string[];
+}
 
 
 export type PermissionType = "unlock" | "lock" | "user_view";

@@ -15,20 +15,18 @@ const SignIn = createAsyncThunk(
       const options: AxiosRequestConfig =
         data.type === "login"
           ? { url: "login", method: "POST", data: data?.data ?? null }
-          : { url: "me", method: "GET", params: {} };
+          : { url: "auth/me", method: "GET", params: {} };  
 
       // axios chaqiruv (to'g'ri usul bilan)
       const response = await authInstance.request(options);
       const _data = response.data;
 
-      console.log("_data", _data);
-
       // 🔹 Tokenlarni saqlash
-      if (_data?.data?.access) {
-        localStorage.setItem("access_token", _data.data.access);
+      if (_data?.access_token) {
+        localStorage.setItem("access_token", _data?.access_token);
       }
-      if (_data?.data?.refresh) {
-        localStorage.setItem("refresh_token", _data.data.refresh);
+      if (_data?.refresh_token) {
+        localStorage.setItem("refresh_token", _data?.refresh_token);
       }
 
       return _data;
@@ -47,7 +45,7 @@ export const refreshToken = async () => {
 
     if (refresh_token) {
       const response = await instance.request({
-        url: "/base/token-refresh/",
+        url: "/auth/refresh-token",
         method: "POST",
         data: { refresh: refresh_token },
       });
@@ -58,7 +56,7 @@ export const refreshToken = async () => {
       } else {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/signin";
+        window.location.href = "/login";
       }
     } else {
       store.dispatch(logout());
@@ -66,6 +64,6 @@ export const refreshToken = async () => {
   } catch (error) {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
-    window.location.href = "/signin";
+    window.location.href = "/login";
   }
 };

@@ -1,36 +1,23 @@
 import type { AppRoute } from "@/types";
-import { Home1, Home2, Role1, Role2 } from "../pages";
+import { Role1, Role2 } from "../pages";
 import Login from "@/pages/auth/login";
+import Dashboard from "@/pages/dashboard";
 
 export const protected_routes: AppRoute[] = [
+   {
+    name: "Login",
+    path: "/login",
+    component: Login,
+    config: {
+      permission: "unlock",
+      structure: "nonlayout",
+      isMenu: false,
+    },
+  },
   {
     name: "Main page",
     path: "/",
-    component: Home1,
-    config: {
-      permission: "unlock",
-      icon: [],
-      structure: "layout",
-      isMenu: true,
-      isRole: ["1"],
-    },
-  },
-  {
-    name: "Books",
-    path: "/books",
-    component: Home2,
-    config: {
-      permission: "unlock",
-      icon: [],
-      structure: "layout",
-      isMenu: true,
-      isRole: ["1"],
-    },
-  },
-  {
-    name: "Users",
-    path: "/user",
-    component: Home1,
+    component: Dashboard,
     config: {
       permission: "unlock",
       icon: [],
@@ -61,15 +48,5 @@ export const protected_routes: AppRoute[] = [
       isMenu: true,
       isRole: ["2"],
     },
-  },
-  {
-    name: "Login",
-    path: "/login",
-    component: Login,
-    config: {
-      permission: "unlock",
-      structure: "nonlayout",
-      isMenu: false,
-    },
-  },
+  }
 ];

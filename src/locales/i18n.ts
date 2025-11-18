@@ -16,15 +16,15 @@ const resources = {
   },
 };
 
-const language = localStorage.getItem("languageLang");
+const language = localStorage.getItem("lang");
 
 if (!language) {
-  localStorage.setItem("languageLang", "uz");
+  localStorage.setItem("lang", "uz");
 }
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem("languageLang") || "uz",
+  lng: localStorage.getItem("lang") || "uz",
 
   keySeparator: false,
 

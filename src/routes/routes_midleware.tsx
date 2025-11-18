@@ -40,7 +40,7 @@ const RoutesMiddleware = () => {
 
   return (
     <Routes>
-      {/* Agar login qilgan bo‘lsa */}
+      {/* Agar login qilgan bo'lsa */}
       {token
         ? protected_routes
             .filter((r) => r.config?.structure !== "nonlayout") // layout sahifalar
@@ -51,7 +51,7 @@ const RoutesMiddleware = () => {
 
       {/* Default redirect */}
       {!token && <Route path="*" element={<Navigate to="/login" replace />} />}
-      {token && <Route path="*" element={<h1>NOT FOUND</h1>} />}
+      {token && <Route path="*" element={<Navigate to="/" replace />} />}
     </Routes>
   );
 };

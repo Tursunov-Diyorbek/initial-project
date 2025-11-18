@@ -10,7 +10,7 @@ export default function Language() {
   const changeLanguage = (lang: string) => {
     i18next.changeLanguage(lang);
     setCurrentLang(lang);
-    localStorage.setItem("languageLang", lang);
+    localStorage.setItem("lang", lang);
   };
 
   const items: MenuProps["items"] = [

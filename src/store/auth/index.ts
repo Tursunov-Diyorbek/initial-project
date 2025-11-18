@@ -11,6 +11,7 @@ export type TypeInitialStateAuth = {
   isLoading?: boolean;
   permissions?: Array<string>;
   refreshLoading: boolean;
+  roles: string[];
 };
 
 const initialState: TypeInitialStateAuth = {
@@ -21,30 +22,19 @@ const initialState: TypeInitialStateAuth = {
   isLoading: false,
   permissions: [],
   refreshLoading: true,
+  roles: [],
 };
 
 const SignInSlice = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {
-    login(state) {
+    login(state, action) {
       state.isAuthenticated = true;
       state.isLoading = false;
-      state.permissions = [""];
-      state.user = {
-        username: "username",
-        access_token: "dfdsfdsfdfsfsd",
-        name: "Jhone",
-        surname: "Doe",
-        middle_name: "Doe",
-        permissions: [""],
-        role: [],
-        user_permissions: [],
-        user_id: 1,
-        guid: "",
-        user_guid: "",
-        gender: 1,
-      };
+      state.permissions = action?.payload?.permissions ?? [];
+      state.user = action?.payload?.user ?? null;
+      state.roles = action?.payload?.roles ?? [];
     },
 
     logout(state) {
@@ -68,10 +58,10 @@ const SignInSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(SignIn.fulfilled, (state, action: PayloadAction<any>) => {
-        if (action.payload) {
-          const user = action.payload.data.length ? action.payload.data[0] : action.payload.data;
-          if (user.picture) {
-            user.photo = user.picture;
+        if (action?.payload) {
+          const user = action?.payload?.data?.length ? action.payload.data[0] : action.payload.data;
+          if (user?.picture) {
+            user.photo = user?.picture;
           }
 
           state.user = user;

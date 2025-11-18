@@ -7,7 +7,6 @@ export class ResponseError {
   error!: AxiosError<any>;
 
   
-  
   constructor(error: AxiosError<any>) {
     console.log("error", error);
     this.error = error;
@@ -45,7 +44,7 @@ export class ResponseError {
 
   private 401(): void {
     store.dispatch(logout());
-    // window.location.href = "/signin";
+    window.location.href = "/login";
   }
 
   private 403(): void {
