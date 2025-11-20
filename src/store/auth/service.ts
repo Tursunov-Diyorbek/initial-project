@@ -1,7 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import instance, { authInstance } from "../../config/axios.config";
-import { logout } from "./index";
-import store from "..";
+import { authInstance } from "../../config/axios.config";
 import type { AxiosRequestConfig } from "axios";
 
 // 🔹 LOGIN yoki ME uchun async thunk
@@ -39,31 +37,39 @@ const SignIn = createAsyncThunk(
 export default SignIn;
 
 // 🔹 Token yangilash funksiyasi
-export const refreshToken = async () => {
-  try {
-    const refresh_token = localStorage.getItem("refresh_token");
+// export const refreshToken = async (): Promise<AxiosResponse<TokenResponse>> => {
+//   try {
+//     const refresh_token = localStorage.getItem("refresh_token");
+//     const device_id = localStorage.getItem("device_id");
 
-    if (refresh_token) {
-      const response = await instance.request({
-        url: "/auth/refresh-token",
-        method: "POST",
-        data: { refresh: refresh_token },
-      });
+//     if (refresh_token) {
+//       const response = await instance.request({
+//         url: "/auth/refresh-token",
+//         method: "POST",
+//         data: { refresh: refresh_token, device_id },
+//       });
 
-      if (response?.status === 200 || response?.status === 201) {
-        localStorage.setItem("access_token", response?.data.access);
-        localStorage.setItem("refresh_token", response?.data.refresh);
-      } else {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
-      }
-    } else {
-      store.dispatch(logout());
-    }
-  } catch (error) {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    window.location.href = "/login";
-  }
-};
+//       if ([200, 201].includes(response?.status)) {
+//         localStorage.setItem("access_token", response?.data.access_token);
+//         localStorage.setItem("refresh_token", response?.data.refresh_token);
+//         localStorage.setItem("device_id", response?.data.device_id);
+//         return response;
+//       } else {
+//         localStorage.removeItem("access_token");
+//         localStorage.removeItem("refresh_token");
+//         localStorage.removeItem("device_id");
+//         store.dispatch(logout());
+//         throw new Error("Token refresh failed");
+//       }
+//     } else {
+//       store.dispatch(logout());
+//       throw new Error("No refresh token available");
+//     }
+//   } catch (error) {
+//     localStorage.removeItem("access_token");
+//     localStorage.removeItem("refresh_token");
+//     localStorage.removeItem("device_id");
+//     window.location.href = "/login";
+//     throw error;
+//   }
+// };

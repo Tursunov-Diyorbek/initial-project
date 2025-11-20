@@ -15,7 +15,7 @@ export const protected_routes: AppRoute[] = [
     },
   },
   {
-    name: "Main page",
+    name: "Asosiy sahifa",
     path: "/",
     component: Dashboard,
     config: {
@@ -34,7 +34,7 @@ export const protected_routes: AppRoute[] = [
       icon: [],
       structure: "layout",
       isMenu: true,
-      isRole: ["2"],
+      isRole: ["superadmin"],
     },
   },
   {

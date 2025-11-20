@@ -32,14 +32,20 @@ export const logoutUser = () => {
   return API_V2.post("/auth/logout", payload);
 };
 
-export const loginUser = (loginData: FormData | LoginPayload) =>
-  API_V2.post("/login", loginData);
-
-export const refreshToken = (refresh_token: string, device_id: string) =>
-  API_V2.post("/auth/refresh-token", { refresh_token, device_id });
+export const refreshToken = async (refreshToken: string, deviceId: string) => {
+  try {
+    const response = await API_V2.post(`/auth/refresh-token`, {
+      refresh_token: refreshToken,
+      device_id: deviceId,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export function isRole(name: string): boolean {
-   const { roles } = useContext(MainContext);
+  const { roles } = useContext(MainContext);
 
   const userRoles = Array.isArray(roles) ? roles : [];
 
@@ -52,8 +58,9 @@ export function isRole(name: string): boolean {
 export const generateNewId = (): string =>
   (1e7 + -1e3 + -4e3 + -8e3 + -1e11)
     .toString()
-    .replace(/[018]/g, c =>
-      (Number(c) ^
+    .replace(/[018]/g, (c) =>
+      (
+        Number(c) ^
         (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (Number(c) / 4)))
       ).toString(16)
     );
@@ -74,14 +81,18 @@ export const createLoginFormData = (
 ): LoginFormDataResult => {
   const device_id = generateNewId();
   const platform = getPlatform();
-  const model_device = typeof navigator !== 'undefined' ? navigator.platform || 'unknown' : 'unknown';
+  const model_device =
+    typeof navigator !== "undefined"
+      ? navigator.platform || "unknown"
+      : "unknown";
+  localStorage.setItem("device_id", device_id);
 
   const formData = new FormData();
 
   const entries = {
     username: username || "",
     password: password || "",
-    device: 'web' as const,
+    device: "web" as const,
     device_id,
     model_device,
     platform,

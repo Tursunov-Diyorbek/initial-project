@@ -2,11 +2,12 @@ import store from "../../store";
 import { logout } from "../../store/auth";
 import { AxiosError } from "axios";
 import { message } from "antd";
+import { refreshToken } from "@/api/auth_api";
+import SignIn from "@/store/auth/service";
 
 export class ResponseError {
   error!: AxiosError<any>;
 
-  
   constructor(error: AxiosError<any>) {
     console.log("error", error);
     this.error = error;
@@ -42,7 +43,36 @@ export class ResponseError {
     message.error(this?.error?.response?.data?.data);
   }
 
-  private 401(): void {
+  private async 401(): Promise<void> {
+    const refresh_token = localStorage.getItem("refresh_token");
+    const device_id = localStorage.getItem("device_id");
+
+    if (refresh_token && device_id) {
+      try {
+        const response = await refreshToken(refresh_token, device_id);
+        if (response?.access_token) {
+          localStorage.setItem("access_token", response.access_token);
+          localStorage.setItem("refresh_token", response.refresh_token);
+          store.dispatch(SignIn({ data: null, type: "me" }));
+
+          // Token yangilandi, qayta urinish mumkin
+          return;
+        } else {
+          // Response success bo'lmadi (access_token yo'q)
+          store.dispatch(logout());
+          window.location.href = "/login";
+          return;
+        }
+      } catch (error) {
+        // Token yangilash muvaffaqiyatsiz, logout qilish kerak
+        console.error("Token refresh failed:", error);
+        store.dispatch(logout());
+        window.location.href = "/login";
+        return;
+      }
+    }
+
+    // Token yangilash muvaffaqiyatsiz yoki refresh_token yo'q
     store.dispatch(logout());
     window.location.href = "/login";
   }

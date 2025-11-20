@@ -5,13 +5,8 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { message } from "antd";
-import { refreshToken } from "../auth_api";
 import { PATH_PREFIX_V2 } from "@/utils/AppVariables";
-
-interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-}
+import { refreshToken } from "../auth_api";
 
 interface FailedRequest {
   resolve: (token: string | null) => void;
@@ -26,29 +21,23 @@ let isRefreshing = false;
 let failedQueue: FailedRequest[] = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
-  failedQueue.forEach(p => (error ? p.reject(error) : p.resolve(token)));
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token)));
   failedQueue = [];
 };
 
 const logout = () => {
-  [
-    "token",
-    "refresh_token",
-    "roles",
-    "permissions",
-    "user_profile_name",
-    "device_id",
-  ].forEach(key => localStorage.removeItem(key));
-
-  message.error("Sessiya muddati tugadi. Iltimos, qayta tizimga kiring.");
-  window.location.href = "/login";
+  localStorage.clear();
+  sessionStorage.clear(); 
+  window.location.reload();
 };
 
 const errorHandler = (error: AxiosError<any>): void => {
   const { response } = error;
 
   if (!response) {
-    message.error("Tarmoqda uzilish! Internetni tekshiring yoki keyinroq urinib ko‘ring.");
+    message.error(
+      "Tarmoqda uzilish! Internetni tekshiring yoki keyinroq urinib ko‘ring."
+    );
     return;
   }
 
@@ -68,7 +57,9 @@ const errorHandler = (error: AxiosError<any>): void => {
     return;
   }
 
-  message.error(messages[status] || data?.message || "Noma’lum xatolik yuz berdi.");
+  message.error(
+    messages[status] || data?.message || "Noma’lum xatolik yuz berdi."
+  );
 };
 
 // ✅ To‘g‘rilangan request interceptor
@@ -85,27 +76,36 @@ API_V2.interceptors.request.use(
 
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 // ✅ Response interceptor
 API_V2.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError<any>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
     const status = error.response?.status;
 
-    if (status === 401 && originalRequest.url?.includes("/auth/refresh-token")) {
+    if (
+      status === 401 &&
+      originalRequest.url?.includes("/auth/refresh-token")
+    ) {
       processQueue(error, null);
       logout();
       return Promise.reject(error);
     }
 
-    if (status === 401 && !originalRequest._retry && !originalRequest.url?.includes("/auth/refresh-token")) {
-      const refresh_token = localStorage.getItem("refresh_token");
+    if (
+      status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh-token")
+    ) {
+      const refresh_Token = localStorage.getItem("refresh_token");
       const device_id = localStorage.getItem("device_id");
 
-      if (!refresh_token || !device_id) {
+      if (!refresh_Token || !device_id) {
         logout();
         return Promise.reject(error);
       }
@@ -113,7 +113,7 @@ API_V2.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(token => {
+        }).then((token) => {
           if (token) originalRequest.headers.Authorization = `Bearer ${token}`;
           return API_V2(originalRequest);
         });
@@ -123,11 +123,11 @@ API_V2.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await refreshToken(refresh_token, device_id);
-        const { access_token, refresh_token: new_refresh }: TokenResponse = response.data;
+        const response = await refreshToken(refresh_Token, device_id);
+        const { access_token, refresh_token } = response.data;
 
         localStorage.setItem("token", access_token);
-        localStorage.setItem("refresh_token", new_refresh);
+        localStorage.setItem("refresh_token", refresh_token);
 
         API_V2.defaults.headers.common.Authorization = `Bearer ${access_token}`;
         processQueue(null, access_token);

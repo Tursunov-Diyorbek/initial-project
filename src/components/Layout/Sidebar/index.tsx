@@ -1,12 +1,16 @@
 import { Layout, Menu } from "antd";
 import { protected_routes } from "../../../routes/routes";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { MenuItemType } from "antd/es/menu/interface";
+import { useContext } from "react";
+import { MainContext } from "@/context";
 
 const { Sider } = Layout;
 
 export default function Sidebar({ burger }: any) {
-  const role = localStorage.getItem("role") ?? "";
+  const { roles } = useContext(MainContext);
+  const location = useLocation();
+
   const items = () => {
     const _items: MenuItemType[] = [];
     protected_routes?.forEach((e) => {
@@ -14,7 +18,7 @@ export default function Sidebar({ burger }: any) {
         e.config?.isMenu &&
         e.config.permission === "unlock" &&
         e.config.structure === "layout" &&
-        ((e.config.isRole && e.config.isRole?.includes(role)) ||
+        ((e.config.isRole && e.config.isRole?.some((role: string) => roles.includes(role))) ||
           !e.config.isRole)
       ) {
         _items.push({
@@ -29,11 +33,11 @@ export default function Sidebar({ burger }: any) {
   };
 
   return (
-    <Sider trigger={null} collapsible collapsed={burger} className="vh-100">
+    <Sider trigger={null} collapsible collapsed={burger} className="h-screen">
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={["1"]}
+        selectedKeys={[location.pathname]}
         items={items()}
       />
     </Sider>

@@ -43,8 +43,7 @@ const SignInSlice = createSlice({
       state.error = "";
       state.permissions = [];
       state.user = null;
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
+      localStorage.clear();
       queryClient.clear();
     },
     
@@ -59,12 +58,13 @@ const SignInSlice = createSlice({
       })
       .addCase(SignIn.fulfilled, (state, action: PayloadAction<any>) => {
         if (action?.payload) {
-          const user = action?.payload?.data?.length ? action.payload.data[0] : action.payload.data;
+          const user = action?.payload?.data?.user || (action?.payload?.data?.length ? action.payload.data[0] : action.payload.data);
           if (user?.picture) {
             user.photo = user?.picture;
           }
 
           state.user = user;
+          state.roles = user?.roles || [];
           state.message = action.payload.message;
           state.isLoading = false;
           state.isAuthenticated = true;
